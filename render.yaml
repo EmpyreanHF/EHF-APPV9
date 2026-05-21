@@ -1,0 +1,62 @@
+##############################################################
+#  Empyrean Humanitarian Platform — Render Deployment Config
+#  https://render.com/docs/render-yaml-specification
+##############################################################
+
+services:
+  - type: web
+    name: empyrean-app
+    runtime: node
+    plan: starter                      # upgrade to standard/pro for prod
+    region: oregon                     # closest to your users
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+
+    # ── Health check ─────────────────────────────────────────
+    healthCheckPath: /api/config
+
+    # ── All sensitive keys stored ONLY here — never in code ──
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Firebase (Web SDK — public project config)
+      - key: FIREBASE_API_KEY
+        sync: false                    # set manually in Render dashboard
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      - key: FIREBASE_MEASUREMENT_ID
+        sync: false
+
+      # Firebase Admin SDK (service account — for server-side FCM push)
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false                    # paste full JSON string from Firebase console
+
+      # Cloudinary (upload preset is public; API secret stays server-side)
+      - key: CLOUDINARY_CLOUD
+        sync: false
+      - key: CLOUDINARY_PRESET
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false                    # never sent to browser
+
+      # Flutterwave
+      - key: FLW_PUBLIC_KEY
+        sync: false                    # publishable — sent to browser via /api/config
+      - key: FLW_SECRET_KEY
+        sync: false                    # secret — server-only, used in /api/flw/verify
+      - key: FLW_ENCRYPTION_KEY
+        sync: false                    # server-only
+
+      # Port (Render sets this automatically, but explicit is fine)
+      - key: PORT
+        value: 3000
